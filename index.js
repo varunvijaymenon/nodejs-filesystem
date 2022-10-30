@@ -12,11 +12,16 @@ console.log(directoryPath);
 
 app.get('/createlogfile', (req, res) => {
 
-    fs.writeFile(directoryPath +'/'+ String(moment().format('DD-MM-YYYY:hh:mm:ss'))+'.txt', String(moment().format('DD-MM-YYYY:hh:mm:ss')), function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-      });
-    res.send('Log file created');
+    if (!fs.existsSync(directoryPath)){
+        fs.mkdirSync(directoryPath, { recursive: true });
+
+        fs.writeFile(directoryPath +'/'+ String(moment().format('DD-MM-YYYY:hh:mm:ss'))+'.txt', String(moment().format('DD-MM-YYYY:hh:mm:ss')), function (err) {
+            if (err) throw err;
+            console.log('Saved!');
+          });
+        res.send('Log file created');
+    }
+    
   });
   
 
@@ -25,7 +30,7 @@ app.get('/createlogfile', (req, res) => {
     fs.readdir(directoryPath, function (err, files) {
         //handling error
         if (err) {
-            return console.log('Unable to scan directory: ' + err);
+            return res.status(400).send('Unable to scan directory: ' + err);
         } 
         file_list = []
         //listing all files using forEach
